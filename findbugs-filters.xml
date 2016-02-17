@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FindBugsFilter>
+  <Class name="~org.openjdk.jmh.infra.generated\.[^.]+"/>
+  <Class name="~com.facebook.hbase.generated\.[^.]+"/>
+</FindBugsFilter>
