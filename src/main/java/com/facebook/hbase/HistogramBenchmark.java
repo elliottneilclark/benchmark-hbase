@@ -1,9 +1,8 @@
 package com.facebook.hbase;
 
-import com.yammer.metrics.core.Histogram;
-import com.yammer.metrics.core.MetricName;
-import org.HdrHistogram.AtomicHistogram;
 import org.HdrHistogram.ConcurrentHistogram;
+import org.HdrHistogram.Recorder;
+import org.apache.hadoop.hbase.util.FastLongHistogram;
 import org.apache.hadoop.metrics2.MetricHistogram;
 import org.apache.hadoop.metrics2.lib.MetricMutableQuantiles;
 import org.apache.hadoop.metrics2.lib.MutableHistogram;
@@ -22,15 +21,15 @@ import org.openjdk.jmh.annotations.Warmup;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-@BenchmarkMode(Mode.AverageTime)
+@BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Measurement(iterations = 5, time = 5, timeUnit = TimeUnit.SECONDS)
-@Warmup(iterations = 1, time = 10, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.MINUTES)
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.MINUTES)
 @Timeout(time = 15, timeUnit = TimeUnit.MINUTES)
 @Fork(value = 1, jvmArgsPrepend = "-server")
 public class HistogramBenchmark {
 
-  public static final int NUM_THREADS = 1;
+  public static final int NUM_THREADS = 8;
 
   @State(Scope.Benchmark)
   public static class NormalHisto {
@@ -44,8 +43,8 @@ public class HistogramBenchmark {
 
   @State(Scope.Benchmark)
   public static class Yammer {
-    com.yammer.metrics.core.MetricsRegistry registry = new com.yammer.metrics.core.MetricsRegistry();
-    Histogram histo = registry.newHistogram(new MetricName("t","t","t"),true);
+    com.codahale.metrics.MetricRegistry registry = new com.codahale.metrics.MetricRegistry();
+    com.codahale.metrics.Histogram histo = registry.histogram("test");
   }
 
   @State(Scope.Benchmark)
@@ -55,10 +54,18 @@ public class HistogramBenchmark {
 
   @State(Scope.Benchmark)
   public static class HDRAtomic {
-    AtomicHistogram histo = new AtomicHistogram(1,TimeUnit.MINUTES.toMillis(2), 3);
+    Recorder histo = new Recorder(TimeUnit.HOURS.toMillis(3), 3);
   }
+
+  @State(Scope.Benchmark)
+  public static class FastLong {
+    FastLongHistogram fastLongHistogram = new FastLongHistogram(50);
+  }
+
+
+
   private long getTime() {
-    return ThreadLocalRandom.current().nextLong(3000);
+    return (long) (ThreadLocalRandom.current().nextGaussian() * 10 + 100);
   }
 
 
@@ -75,6 +82,14 @@ public class HistogramBenchmark {
   public long testQuant(Quant hist) {
     long time = getTime();
     hist.quant.add(time);
+    return time;
+  }
+
+  @Benchmark
+  @GroupThreads(NUM_THREADS)
+  public long fastLong(FastLong hist) {
+    long time = getTime();
+    hist.fastLongHistogram.add(time, 1);
     return time;
   }
 
