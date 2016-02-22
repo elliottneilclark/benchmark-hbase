@@ -4,7 +4,6 @@ import org.HdrHistogram.ConcurrentHistogram;
 import org.HdrHistogram.Recorder;
 import org.apache.hadoop.hbase.util.FastLongHistogram;
 import org.apache.hadoop.metrics2.MetricHistogram;
-import org.apache.hadoop.metrics2.lib.MutableHistogram;
 import org.apache.hadoop.metrics2.lib.MutableTimeHistogram;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -23,13 +22,13 @@ import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Measurement(iterations = 1, time = 30, timeUnit = TimeUnit.SECONDS)
-@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.MINUTES)
-@Timeout(time = 15, timeUnit = TimeUnit.MINUTES)
+@Measurement(iterations = 2, time = 60, timeUnit = TimeUnit.MINUTES)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.MINUTES)
+@Timeout(time = 3, timeUnit = TimeUnit.HOURS)
 @Fork(value = 1, jvmArgsPrepend = "-server")
 public class HistogramBenchmark {
 
-  public static final int NUM_THREADS = 8;
+  public static final int NUM_THREADS = 64;
 
   @State(Scope.Benchmark)
   public static class NormalMutableTimeHistogram {
