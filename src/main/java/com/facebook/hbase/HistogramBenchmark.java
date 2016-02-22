@@ -4,8 +4,8 @@ import org.HdrHistogram.ConcurrentHistogram;
 import org.HdrHistogram.Recorder;
 import org.apache.hadoop.hbase.util.FastLongHistogram;
 import org.apache.hadoop.metrics2.MetricHistogram;
-import org.apache.hadoop.metrics2.lib.MetricMutableQuantiles;
 import org.apache.hadoop.metrics2.lib.MutableHistogram;
+import org.apache.hadoop.metrics2.lib.MutableTimeHistogram;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.MINUTES)
+@Measurement(iterations = 1, time = 30, timeUnit = TimeUnit.SECONDS)
 @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.MINUTES)
 @Timeout(time = 15, timeUnit = TimeUnit.MINUTES)
 @Fork(value = 1, jvmArgsPrepend = "-server")
@@ -32,13 +32,8 @@ public class HistogramBenchmark {
   public static final int NUM_THREADS = 8;
 
   @State(Scope.Benchmark)
-  public static class NormalHisto {
-    MetricHistogram histogram = new MutableHistogram("","");
-  }
-
-  @State(Scope.Benchmark)
-  public static class Quant {
-    MetricMutableQuantiles quant = new MetricMutableQuantiles("t", "t", "t", "t", 60);
+  public static class NormalMutableTimeHistogram {
+    MetricHistogram histogram = new MutableTimeHistogram("","");
   }
 
   @State(Scope.Benchmark)
@@ -71,17 +66,9 @@ public class HistogramBenchmark {
 
   @Benchmark
   @GroupThreads(NUM_THREADS)
-  public long testNormal(NormalHisto histo) {
+  public long testMutableTimeHistogram(NormalMutableTimeHistogram histo) {
     long time = getTime();
     histo.histogram.add(time);
-    return time;
-  }
-
-  @Benchmark
-  @GroupThreads(NUM_THREADS)
-  public long testQuant(Quant hist) {
-    long time = getTime();
-    hist.quant.add(time);
     return time;
   }
 

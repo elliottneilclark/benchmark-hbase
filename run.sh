@@ -10,7 +10,7 @@ OFILE="result.${FT}"
 rm -f hs_* || true
 
 [[ -f "$OFILE" ]] &&  rm ${OFILE}
-mvn clean package
+mvn -U clean package
 clear
 mvn -version
 java ${JAVA_ARGS} -jar target/benchmarks.jar -foe true -rf ${FT} -rff ${OFILE} "$@"
