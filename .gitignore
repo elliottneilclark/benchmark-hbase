@@ -64,3 +64,8 @@ target/
 
 result.json
 result.csv
+
+
+#Buck
+buck-out
+.buckd
