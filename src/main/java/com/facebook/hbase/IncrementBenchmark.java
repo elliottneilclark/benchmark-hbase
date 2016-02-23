@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.LongAdder;
 @Timeout(time = 15, timeUnit = TimeUnit.MINUTES)
 @Fork(value = 1, jvmArgsPrepend = "-server")
 public class IncrementBenchmark {
-  public static final int NUM_THREADS = 64;
+  public static final int NUM_THREADS = 32;
 
 
   @State(Scope.Benchmark)

@@ -22,13 +22,13 @@ import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Measurement(iterations = 2, time = 60, timeUnit = TimeUnit.MINUTES)
-@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.MINUTES)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.MINUTES)
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.MINUTES)
 @Timeout(time = 3, timeUnit = TimeUnit.HOURS)
 @Fork(value = 1, jvmArgsPrepend = "-server")
 public class HistogramBenchmark {
 
-  public static final int NUM_THREADS = 64;
+  public static final int NUM_THREADS = 32;
 
   @State(Scope.Benchmark)
   public static class NormalMutableTimeHistogram {
